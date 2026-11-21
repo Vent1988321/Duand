@@ -1,0 +1,27 @@
+name: Build APK
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Install deps
+        run: |
+          sudo apt update
+          sudo apt install -y python3-pip zlib1g-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libgdbm-dev libdb5.3-dev libbz2-dev libexpat1-dev liblzma-dev tk-dev libffi-dev
+          pip install buildozer cython==0.29.34
+      - name: Build
+        run: buildozer -v android debug
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: querytool-apk
+          path: bin/*.apk
